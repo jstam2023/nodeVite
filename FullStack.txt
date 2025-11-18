@@ -1,0 +1,182 @@
+						FULLSTACK PROJECT:
+
+BACKEND:
+
+1. We first create a backend folder in our project
+2. We add a server.js file
+3. We run → npm init -y     in the back end folder
+4.  We use the following in the package.json file:
+
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --watch --env-file=.env ./server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+
+
+5. We install cors and express packages:
+npm install cors express
+
+
+6. We add to the server.js file:
+
+
+import express from 'express'
+import cors from 'cors'
+
+const app = express();
+const PORT = 5050;
+//we can delete it and move it to .env file as a variable
+const PORT = process.env.PORT;
+
+app.use(cors())
+app.use(express.json())
+
+app.listen(PORT, ()=> {
+    console.log(`Server is running on port:${PORT}`)
+})
+
+
+7. We add an .env file to the backend folder:
+PORT=5050
+
+and we pass the variable to the server.js Port as an env variable
+
+
+8. We add the routes(all server.js code below):
+
+
+import express from 'express'
+import cors from 'cors'
+
+const app = express();
+// const PORT = 5050;
+//we can delete it and move it to .env file as a variable
+const PORT = process.env.PORT;
+
+app.use(cors())
+app.use(express.json())
+
+app.get("/api/message", (req, res)=> {
+    res.status(200).json({message: "Hello from the backend!"})
+})
+
+app.post("/api/message", (req, res)=> {
+    const name = req.body.name;
+    //Alternatively we destructure the name which we get from the body we send from the frontend
+    // const {name} = req.body
+    res.status(200).json({message: `Hello, ${name}, the data was received`})
+})
+
+app.listen(PORT, ()=> {
+    console.log(`Server is running on port:${PORT}`)
+})
+
+
+
+9. We run: npm run start -to start the server
+
+
+
+FRONTEND:
+
+1. We create a second folder and we name it frontend
+2. we go to the frontend folder in the terminal and run:
+npm create vite@latest .
+3. We choose React
+4. We choose JavaScript for now
+5. We run npm install
+6. We run npm run dev
+7. We remove the code we dont need from app.jsx:
+
+import { useState } from 'react'
+// import reactLogo from './assets/react.svg'
+// import viteLogo from '/vite.svg'
+import './App.css'
+
+function App() {
+  const [message, setMessage] = useState('')
+  const [name, setName] = useState("")
+  const [responseMsg, setResponseMsg] = useState("")
+
+  //Get request to fetch data
+const fetchMessage = async () => {
+  try {
+    const response = await fetch("http://localhost:5050/api/message")
+    const data = await response.json()
+    if (data) {
+      setMessage(data.message)
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// POST request to send data
+const sendMessage = async()=> {
+  try {
+    console.log(name)
+
+    const response = await fetch("http://localhost:5050/api/message", {
+      method: "POST",
+      headers: {'Content-Type': "application/json"},
+      body: JSON.stringify({name: name})
+    });
+
+    const data = await response.json()
+    if(data) {
+      setResponseMsg(data.message)
+    }
+
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
+  return (
+    <div className='main'>
+      <div>
+        <h2>GET Request</h2>
+        <button
+        onClick={fetchMessage}
+        >Get Message from Backend</button>
+        <p>{message}</p>
+      </div>
+
+       <div>
+        <h2>POST Request</h2>
+        <div>
+          <input 
+          type="text"
+          placeholder='Enter your name'
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          />{' '}
+          <button
+          onClick={sendMessage}>Send Name to Backend</button>
+        </div>
+        <p>{responseMsg}</p>
+      </div>
+    </div>
+  )
+}
+
+export default App
+
+
+
+
+
+
+
+
